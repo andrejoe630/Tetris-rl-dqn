@@ -6,7 +6,25 @@ Each "timestep" = 1 placed piece: the agent picks `(rotation, x, hold?)`, the wr
 
 ![Bot playing](assets/tetris_bot.gif)
 
-## Setup (Windows)
+## How it works
+
+Standard DQN struggles on Tetris because per-frame control (left/right/rotate/drop) makes
+rewards extremely sparse and credit assignment hard. This project reframes the problem with a
+**macro-action wrapper** (`tetris_macro_env.py`): the action space becomes the set of legal final
+placements `(rotation, x, hold?)`, and the wrapper teleports + hard-drops the piece. The agent
+makes one decision per piece instead of dozens per piece, which makes the DQN converge far more
+reliably. Built on `tetris_gymnasium` + Stable-Baselines3 (PyTorch).
+
+## Setup
+
+**Linux / macOS**
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+**Windows (PowerShell)**
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
@@ -78,7 +96,7 @@ python .\dqn\eval_lines.py --obs board --hold-actions --next-n 1 --reward-profil
 
 ## TensorBoard
 ```powershell
-ssh -L 16006:localhost:6006 root@65.109.128.235
+ssh -L 16006:localhost:6006 user@your-server.example.com
 # On the server:
 tensorboard --logdir /root/tetris-rl-dqn/logs --port 6006 --host 127.0.0.1
 ```
@@ -93,3 +111,7 @@ Then open: http://localhost:16006
 ## Notes
 - On PowerShell, avoid `&&` inside remote command strings; use `;` instead.
 - For stable server performance, set `OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1`.
+
+## License
+
+[MIT](LICENSE)
